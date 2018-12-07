@@ -1,0 +1,614 @@
+---
+title: "Airbnb Data Analysis"
+author: "Zhaobin Liu"
+date: "2018 12 12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+
+
+# Introduction
+
+
+The airbnb information of three cities(Boston, Chicago, Seattle) dataset are from the Airbnb website: http://tomslee.net/airbnb-data-collection-get-the-data. I am using R to combine all of three separate csv files into one csv file called "total_data" to do one of the benford analysis. 
+
+The interesting variables I am using in the dataset are: room_type, neighborhood, reviews, accommodates, bedrooms, price, latitude and longitude. I will do some EDA for these variables of three cities. 
+
+For Benford analysis, I will analyze three cities separately, and get conclusion by analyzing the total_data which is the combination of three cities. 
+
+
+
+
+# EDA
+
+## Boston
+```{r,message=FALSE,warning=FALSE}
+library(ggplot2)
+library(readr)
+boston <- read_csv("boston.csv", col_types = cols(borough = col_skip(),country = col_skip(), location = col_skip()))
+
+## Review Part
+
+# reviews
+# overall trend of reviews
+hist(boston$reviews)
+
+# reviews with neighborhood
+# total reviews from different neighborhood
+ggplot(data=boston, aes(x=neighborhood, y=reviews))+geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(size=10, angle=45))
+
+# rating vs Review
+# Higher rating with more reviews
+ggplot(data=boston, aes(x=overall_satisfaction, y=reviews)) + geom_jitter()
+
+
+
+# the distribution of ratings is diﬀerent between room types
+ggplot(data=boston, aes(x=overall_satisfaction, fill=room_type))+geom_density()+ ggtitle("Weighted Rating and Room Type")
+
+
+
+## Other Part
+
+# room type and accommodates: entire home tends to allow more accommodates
+ggplot(data=boston, aes(x=accommodates, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Accommodates and Room Type")
+
+#  room type and bedrooms: most of airbnb listes are entire home/apt or private room 
+ggplot(data=boston, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Bedrooms and Room Type")
+
+
+
+
+# Price part
+
+#  price and property type: most of airbnb listed are entire home/apt and Private room
+#  former has higher price overall
+ggplot(data=boston, aes(x= log(price), fill=room_type))+geom_histogram()+ ggtitle("Price and Room Type")
+
+# price and neighborhood: variability between neighborhoods 
+ggplot(data=boston, aes(x=log(price), fill=neighborhood))+geom_histogram()+ ggtitle("Price and neighborhood")
+
+
+# For majority part of neighborhood: higher price has higher accommodates
+ggplot(boston, aes(x = log(price), y = accommodates, group = neighborhood)) + geom_smooth() + ggtitle("Room with Higher price has higher accommodates")
+
+
+# Review does not affect price too much
+ggplot(boston) + aes(x = reviews, y = log(price)) + geom_point() +
+  ggtitle("Review does not affect price too much")
+
+
+```
+
+
+## Chicago
+
+
+```{r,message=FALSE,warning=FALSE}
+library(readr)
+library(ggplot2)
+chicago <- read_csv("chicago.csv", col_types = cols(borough = col_skip(), 
+     country = col_skip(), location = col_skip()))
+
+
+## Review Part
+
+# reviews
+# overall trend of reviews
+hist(chicago$reviews)
+
+# rating vs Review
+# higher rating has more reviews
+ggplot(data=chicago, aes(x=overall_satisfaction, y=reviews))+geom_bin2d()+xlab("Ratings")+ ggtitle("Ratings & Reviews") + geom_jitter()
+
+
+
+# the distribution of ratings is diﬀerent between room types
+ggplot(data=chicago, aes(x=overall_satisfaction, fill=room_type))+geom_density()+ ggtitle("Weighted Rating and Room Type")
+
+
+
+## Random Part
+
+# room type and accommodates: entire home tends to allow more accommodates
+ggplot(data=chicago, aes(x=accommodates, fill=room_type))+geom_histogram() + 
+  ggtitle("Entire home tends to allow more accommodates")
+
+# most of airbnb listes are entire home/apt
+ggplot(data=chicago, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Bedrooms and Room Type")
+
+
+
+
+# Price part
+
+#  price and property type: most of airbnb listed are apartment/apt and Private room
+ggplot(data=chicago, aes(x= log(price), fill=room_type))+geom_histogram()+ ggtitle("most of airbnb listed are apartment/apt and Private room")
+
+
+
+# More accommodates tend to cost more money
+ggplot(chicago, aes(x = accommodates,y = log(price))) +geom_point() +geom_smooth()+
+  ggtitle("More accommodates tend to cost more money")
+
+# Treat bedrooms as categorical factors
+# See the distribution of bedrooms in price
+ggplot(data=chicago, aes(x= log(price), fill= factor(bedrooms)))+geom_histogram() +
+  ggtitle("Distribution of bedrooms in price")
+
+
+#Reviews does not affect the price very much
+ggplot(chicago) + aes(x = reviews, y = log(price)) + geom_point() +
+  ggtitle("Reviews does not affect the price very much")
+
+```
+
+
+
+
+## Seattle
+
+```{r,message=FALSE,warning=FALSE}
+seattle <- read_csv("seattle.csv", col_types = cols(borough = col_skip(), 
+     country = col_skip(), location = col_skip()))
+
+
+## Review Part
+
+# reviews
+# the trend of the reviews
+hist(seattle$reviews)
+
+# rating vs Review
+# higher rating has more reviews
+ggplot(data=seattle, aes(x=overall_satisfaction, y=reviews))+geom_bin2d()+xlab("Ratings")+ ggtitle("Higher rating has more reviews") + geom_jitter()
+
+
+# the distribution of ratings is diﬀerent between room types
+ggplot(seattle, aes(x=overall_satisfaction, fill=room_type))+geom_density()+ ggtitle("Weighted Rating and Room Type")
+
+
+
+## Random Part
+
+# room type and accommodates: entire home/apt tends to allow more accommodates
+ggplot(data=seattle, aes(x=accommodates, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Accommodates and Room Type")
+
+#  room type and bedrooms: most of airbnb listes are entire home/apt or private room 
+ggplot(data=seattle, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Bedrooms and Room Type")
+
+
+
+
+# Price part
+
+#  price and room type: most of airbnb listed are apartment/apt or private room
+ggplot(data=seattle, aes(x= log(price), fill=room_type))+geom_histogram()+ ggtitle("Price and Room Type")
+
+
+#More accommodates will have higher price overall
+ggplot(seattle, aes(x = accommodates,y = log(price))) +geom_point() +geom_smooth() +
+  ggtitle("More accommodates will have higher price overall")
+
+# Treat bedrooms as categorical factors
+# See the distribution of bedrooms in price
+ggplot(data=seattle, aes(x= log(price), fill= factor(bedrooms)))+geom_histogram() +
+  ggtitle("Distribution of Bedrooms in Price")
+
+#Reviews does not affect the price too much
+ggplot(seattle) + aes(x = reviews, y = log(price)) + geom_point() +
+  ggtitle("Reviews does not affect the price too much")
+
+
+```
+
+# Benford analysis
+
+
+## Boston reviews
+
+```{r}
+
+#Benford Boston reviews
+library(benford.analysis)
+plot(benford(boston$reviews, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+```
+
+The original data is in blue and the expected frequency according to Benford's law is in red.
+
+Benford’s analysis of the first digits indicate the data basically follows Benford's Law.
+
+Digit Distribution Second Order Test calculates the digit frequencies of the differences between the ordered (ranked) values in a data set. It shows that this dataset generally follows Benford's law, except some specific two digits.
+
+The Chi-Square and Summation Difference plots almost fit Benford's law, but not good enough.
+
+
+```{r}
+benford(boston$reviews)
+```
+
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 10.
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.092, Ex. Kurtosis closes to -1.2, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 6093.1 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. The distribution of this data set looks good. All in all, this dataset should follow Benford's law.
+
+The distortion factor is -19.5255. 
+
+
+```{r,message=FALSE}
+library(tidyverse)
+library(knitr)
+Bfd_boston_reviews <- getBfd(benford(boston$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+
+kable(Bfd_boston_reviews[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r echo=FALSE}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(boston$reviews)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+
+## Boston price
+
+```{r}
+plot(benford(boston$price, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+
+```
+
+
+The original data is in blue and the expected frequency according to Benford's law is in red.
+
+Benford’s analysis of the first digits indicate the data basically follows Benford's Law.
+
+Digit Distribution Second Order Test calculates the digit frequencies of the differences between the ordered (ranked) values in a data set. It shows that this dataset generally follows Benford's law, except some specific two digits.
+
+The Chi-Square and Summation Difference plots almost fit Benford's law, but not good enough.
+
+```{r}
+benford(boston$price)
+```
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 50.
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.091, Ex. Kurtosis closes to -1.2, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 2765.2 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. Thus, the price seems not follow the Benford distribution very well.  
+
+The distortion factor is -5.071143. 
+
+```{r}
+library(tidyverse)
+library(knitr)
+Bfd_boston_price <- getBfd(benford(boston$price))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(Bfd_boston_price[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r echo=FALSE}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(boston$price)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Chicago reviews
+
+```{r}
+library(benford.analysis)
+plot(benford(chicago$reviews, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+```
+The original data is in blue and the expected frequency according to Benford's law is in red.
+
+Benford’s analysis of the first digits indicate the data basically follows Benford's Law.
+
+Digit Distribution Second Order Test calculates the digit frequencies of the differences between the ordered (ranked) values in a data set. It shows that this dataset generally follows Benford's law, except some specific two digits.
+
+The Chi-Square and Summation Difference plots almost fit Benford's law, but not good enough.
+
+```{r}
+benford(chicago$reviews)
+```
+
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 10.
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.09, Ex. Kurtosis closes to -1.2, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 6795 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. The distribution of this data set looks good. Overall, this dataset should follow Benford's law.
+
+The distortion factor is -16.51803. 
+
+
+```{r}
+library(tidyverse)
+library(knitr)
+chicago_reviews <- getBfd(benford(chicago$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(chicago_reviews[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(chicago$reviews)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+
+
+
+
+
+
+
+## Chicago price
+```{r}
+plot(benford(chicago$price, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+```
+The original data is in blue and the expected frequency according to Benford's law is in red.
+
+Benford’s analysis of the first digits indicate the data basically follows Benford's Law.
+
+Digit Distribution Second Order Test calculates the digit frequencies of the differences between the ordered (ranked) values in a data set. It shows that this dataset generally follows Benford's law, except some specific two digits.
+
+The Chi-Square and Summation Difference plots almost fit Benford's law, but not good enough.
+
+
+```{r}
+benford(chicago$price)
+```
+
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 75.
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.1, Ex. Kurtosis closes to -1.41, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 5310.9 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. The distribution of this data set looks good. Thus, the price seems not follow the Benford distribution very well.  
+
+The distortion factor is 10.81249. 
+
+
+```{r}
+library(tidyverse)
+library(knitr)
+chicago_prices <- getBfd(benford(chicago$price))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(chicago_prices[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(chicago$price)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+
+
+# Seattle review
+
+```{r}
+library(benford.analysis)
+plot(benford(seattle$reviews, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+```
+
+The original data is in blue and the expected frequency according to Benford's law is in red.
+
+Benford’s analysis of the first digits indicate the data basically follows Benford's Law.
+
+Digit Distribution Second Order Test calculates the digit frequencies of the differences between the ordered (ranked) values in a data set. It shows that this dataset generally follows Benford's law, except some specific two digits.
+
+The Chi-Square and Summation Difference plots almost fit Benford's law, but not good enough.
+
+```{r}
+benford(seattle$reviews)
+```
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 10.
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.09, Ex. Kurtosis closes to -1.2, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 6122.8 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. The distribution of this data set looks good. Overall, this dataset should follow Benford's law.
+
+The distortion factor is -14.72944. 
+
+
+```{r}
+library(tidyverse)
+library(knitr)
+seattle_reviews <- getBfd(benford(seattle$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(seattle_reviews[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(seattle$reviews)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+
+
+# Seattle price
+```{r}
+plot(benford(seattle$price, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+```
+
+The original data is in blue and the expected frequency according to Benford's law is in red.
+
+Benford’s analysis of the first digits indicate the data basically follows Benford's Law.
+
+Digit Distribution Second Order Test calculates the digit frequencies of the differences between the ordered (ranked) values in a data set. It shows that this dataset generally follows Benford's law, except some specific two digits.
+
+The Chi-Square and Summation Difference plots almost fit Benford's law, but not good enough.
+
+
+```{r}
+benford(seattle$price)
+```
+
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 12.
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.11, Ex. Kurtosis closes to -1.54, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 5819.3 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. The distribution of this data set looks good. Thus, the price seems not follow the Benford distribution very well.  
+
+The distortion factor is 5.86225. 
+
+
+```{r}
+library(tidyverse)
+library(knitr)
+seattle_price <- getBfd(benford(seattle$price))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(seattle_price[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(seattle$price)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+
+
+
+
+
+
+# Total 
+
+```{r}
+boston_new <- boston[,-14]
+total_data <- rbind(boston_new,chicago,seattle)
+```
+
+
+
+## Review
+```{r}
+plot(benford(total_data$reviews))
+benford(total_data$reviews)
+```
+
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 10. The order looks like Benford analysis (10<20<30<40<50)
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.11, Ex. Kurtosis closes to -1.3, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 18631 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. The distribution of this data set looks good. Overall, the reviews should follow the Benford distribution.  
+
+The distortion factor is -16.49611. 
+
+
+```{r}
+library(tidyverse)
+library(knitr)
+total_reviews <- getBfd(benford(total_data$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(total_reviews[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(total_data$reviews)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+
+
+## Price
+```{r}
+library(benford.analysis)
+plot(benford(total_data$price, number.of.digits = 2, sign = "positive", discrete=TRUE, round=3))
+benford(total_data$price)
+```
+
+Above result shows 5 largest discrepancies. As we can see from the plot, the highest deviation is 75. The order does not look like Benford distribution. 
+
+From the log mantissa of the data, we can tell that the data follows Benford's Law. Because Mean closes to 0.5, Variance closes to 0.1, Ex. Kurtosis closes to -1.4, and Skewness closes to 0.
+
+Degree of freedom equals 89 and p-value is small enough that we are supposed to reject the benford's law. X-squared value equals 12826 and stays away to the value of degree of freedom. Thus the dataset might have some problems by looking at these two values. Overall, We conclude that the prices does not follow the Benford distribution very well.  
+
+The distortion factor is 4.522246.  
+
+```{r}
+library(tidyverse)
+library(knitr)
+total_prices <- getBfd(benford(total_data$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#From this table, we can get the distribution of dataset by first two digits.
+kable(total_prices[1:10, 1:6])
+```
+
+Table above shows the distribution of population data by first two digits.
+
+```{r}
+# Show ten suspected two digits that contain most discrepancies from Benford's law.
+kable(head(suspectsTable(benford(total_data$price)),10))
+```
+
+Above table shows ten suspected two digits that contain most discrepancies from Benford's law.
+
+# Conclusion
+
+
+By the EDA of all three cities, we can see that there are a large amount of zeros for reviews suggesting that host needs to find a way to encourage their guests to give the feedback on the website. The rating and reviews are correlated in a positive way. The Entire home/apt is a majority type of Airbnb house. Also, it concludes more bedrooms and higher price. On the other hand, the amount of reviews doese not affect price very much. 
+
+For the Benford analysis part, I analyze two variables in each of cities: Review and price.
+
+By looking at the five basic graph, it looks like that they all follow the Benford distribution; however, when we look at the details of the data, we can find something different. The overall trend of the review is in a good shape. The largest deviation always start with the smallest number. On the other hand, the graph of the price looks a bit more away with the Benford distribution. The largest deviations always start with a much larger number suggesting that it does not follow the distribution very well. The results of the total data which combines three cities also support this conclusion. Thus, in this dataset, reviews are good to trust, but we need to think more while looking at the price
+
+
+
+
+
+
+
+
+
+
+
+
