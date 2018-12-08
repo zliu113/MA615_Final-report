@@ -2,15 +2,13 @@
 title: "Airbnb Data Analysis"
 author: "Zhaobin Liu"
 date: "2018 12 12"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 ```
-
-
 
 
 # Introduction
@@ -31,7 +29,8 @@ For Benford analysis, I will analyze three cities separately, and get conclusion
 ```{r,message=FALSE,warning=FALSE}
 library(ggplot2)
 library(readr)
-boston <- read_csv("boston.csv", col_types = cols(borough = col_skip(),country = col_skip(), location = col_skip()))
+boston <- read_csv("boston.csv", col_types = cols(borough = col_skip(),country = col_skip(), 
+                                                  location = col_skip()))
 
 ## Review Part
 
@@ -49,19 +48,15 @@ ggplot(data=boston, aes(x=neighborhood, y=reviews))+geom_bar(stat = "identity") 
 ggplot(data=boston, aes(x=overall_satisfaction, y=reviews)) + geom_jitter()
 
 
-
-# the distribution of ratings is diﬀerent between room types
-ggplot(data=boston, aes(x=overall_satisfaction, fill=room_type))+geom_density()+ ggtitle("Weighted Rating and Room Type")
-
-
-
 ## Other Part
 
 # room type and accommodates: entire home tends to allow more accommodates
-ggplot(data=boston, aes(x=accommodates, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Accommodates and Room Type")
+ggplot(data=boston, aes(x=accommodates, fill=room_type))+geom_bar(position = "fill")+ 
+  ggtitle("Accommodates and Room Type")
 
 #  room type and bedrooms: most of airbnb listes are entire home/apt or private room 
-ggplot(data=boston, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Bedrooms and Room Type")
+ggplot(data=boston, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ 
+  ggtitle("Bedrooms and Room Type")
 
 
 
@@ -70,14 +65,17 @@ ggplot(data=boston, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")
 
 #  price and property type: most of airbnb listed are entire home/apt and Private room
 #  former has higher price overall
-ggplot(data=boston, aes(x= log(price), fill=room_type))+geom_histogram()+ ggtitle("Price and Room Type")
+ggplot(data=boston, aes(x= log(price), fill=room_type))+geom_histogram()+ 
+  ggtitle("Price and Room Type")
 
 # price and neighborhood: variability between neighborhoods 
-ggplot(data=boston, aes(x=log(price), fill=neighborhood))+geom_histogram()+ ggtitle("Price and neighborhood")
+ggplot(data=boston, aes(x=log(price), fill=neighborhood))+geom_histogram()+ 
+  ggtitle("Price and neighborhood")
 
 
 # For majority part of neighborhood: higher price has higher accommodates
-ggplot(boston, aes(x = log(price), y = accommodates, group = neighborhood)) + geom_smooth() + ggtitle("Room with Higher price has higher accommodates")
+ggplot(boston, aes(x = log(price), y = accommodates, group = neighborhood)) + geom_smooth() + 
+  ggtitle("Room with Higher price has higher accommodates")
 
 
 # Review does not affect price too much
@@ -106,13 +104,8 @@ hist(chicago$reviews)
 
 # rating vs Review
 # higher rating has more reviews
-ggplot(data=chicago, aes(x=overall_satisfaction, y=reviews))+geom_bin2d()+xlab("Ratings")+ ggtitle("Ratings & Reviews") + geom_jitter()
-
-
-
-# the distribution of ratings is diﬀerent between room types
-ggplot(data=chicago, aes(x=overall_satisfaction, fill=room_type))+geom_density()+ ggtitle("Weighted Rating and Room Type")
-
+ggplot(data=chicago, aes(x=overall_satisfaction, y=reviews))+geom_bin2d()+xlab("Ratings")+
+  ggtitle("Ratings & Reviews") + geom_jitter()
 
 
 ## Random Part
@@ -122,7 +115,8 @@ ggplot(data=chicago, aes(x=accommodates, fill=room_type))+geom_histogram() +
   ggtitle("Entire home tends to allow more accommodates")
 
 # most of airbnb listes are entire home/apt
-ggplot(data=chicago, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Bedrooms and Room Type")
+ggplot(data=chicago, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+
+  ggtitle("Bedrooms and Room Type")
 
 
 
@@ -130,7 +124,8 @@ ggplot(data=chicago, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill"
 # Price part
 
 #  price and property type: most of airbnb listed are apartment/apt and Private room
-ggplot(data=chicago, aes(x= log(price), fill=room_type))+geom_histogram()+ ggtitle("most of airbnb listed are apartment/apt and Private room")
+ggplot(data=chicago, aes(x= log(price), fill=room_type))+geom_histogram()+ 
+  ggtitle("most of airbnb listed are apartment/apt and Private room")
 
 
 
@@ -168,21 +163,19 @@ hist(seattle$reviews)
 
 # rating vs Review
 # higher rating has more reviews
-ggplot(data=seattle, aes(x=overall_satisfaction, y=reviews))+geom_bin2d()+xlab("Ratings")+ ggtitle("Higher rating has more reviews") + geom_jitter()
-
-
-# the distribution of ratings is diﬀerent between room types
-ggplot(seattle, aes(x=overall_satisfaction, fill=room_type))+geom_density()+ ggtitle("Weighted Rating and Room Type")
-
+ggplot(data=seattle, aes(x=overall_satisfaction, y=reviews))+geom_bin2d()+xlab("Ratings")+
+  ggtitle("Higher rating has more reviews") + geom_jitter()
 
 
 ## Random Part
 
 # room type and accommodates: entire home/apt tends to allow more accommodates
-ggplot(data=seattle, aes(x=accommodates, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Accommodates and Room Type")
+ggplot(data=seattle, aes(x=accommodates, fill=room_type))+geom_bar(position = "fill")+
+  ggtitle("Accommodates and Room Type")
 
 #  room type and bedrooms: most of airbnb listes are entire home/apt or private room 
-ggplot(data=seattle, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+ ggtitle("Bedrooms and Room Type")
+ggplot(data=seattle, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill")+
+  ggtitle("Bedrooms and Room Type")
 
 
 
@@ -190,7 +183,8 @@ ggplot(data=seattle, aes(x=bedrooms, fill=room_type))+geom_bar(position = "fill"
 # Price part
 
 #  price and room type: most of airbnb listed are apartment/apt or private room
-ggplot(data=seattle, aes(x= log(price), fill=room_type))+geom_histogram()+ ggtitle("Price and Room Type")
+ggplot(data=seattle, aes(x= log(price), fill=room_type))+geom_histogram()+ 
+  ggtitle("Price and Room Type")
 
 
 #More accommodates will have higher price overall
@@ -246,7 +240,8 @@ The distortion factor is -19.5255.
 ```{r,message=FALSE}
 library(tidyverse)
 library(knitr)
-Bfd_boston_reviews <- getBfd(benford(boston$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+Bfd_boston_reviews <- getBfd(benford(boston$reviews))  
 #From this table, we can get the distribution of dataset by first two digits.
 
 kable(Bfd_boston_reviews[1:10, 1:6])
@@ -292,7 +287,8 @@ The distortion factor is -5.071143.
 ```{r}
 library(tidyverse)
 library(knitr)
-Bfd_boston_price <- getBfd(benford(boston$price))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+Bfd_boston_price <- getBfd(benford(boston$price))  
 #From this table, we can get the distribution of dataset by first two digits.
 kable(Bfd_boston_price[1:10, 1:6])
 ```
@@ -355,7 +351,8 @@ The distortion factor is -16.51803.
 ```{r}
 library(tidyverse)
 library(knitr)
-chicago_reviews <- getBfd(benford(chicago$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+chicago_reviews <- getBfd(benford(chicago$reviews))  
 #From this table, we can get the distribution of dataset by first two digits.
 kable(chicago_reviews[1:10, 1:6])
 ```
@@ -405,7 +402,8 @@ The distortion factor is 10.81249.
 ```{r}
 library(tidyverse)
 library(knitr)
-chicago_prices <- getBfd(benford(chicago$price))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+chicago_prices <- getBfd(benford(chicago$price)) 
 #From this table, we can get the distribution of dataset by first two digits.
 kable(chicago_prices[1:10, 1:6])
 ```
@@ -451,7 +449,8 @@ The distortion factor is -14.72944.
 ```{r}
 library(tidyverse)
 library(knitr)
-seattle_reviews <- getBfd(benford(seattle$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+seattle_reviews <- getBfd(benford(seattle$reviews))  
 #From this table, we can get the distribution of dataset by first two digits.
 kable(seattle_reviews[1:10, 1:6])
 ```
@@ -497,7 +496,8 @@ The distortion factor is 5.86225.
 ```{r}
 library(tidyverse)
 library(knitr)
-seattle_price <- getBfd(benford(seattle$price))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+seattle_price <- getBfd(benford(seattle$price))  
 #From this table, we can get the distribution of dataset by first two digits.
 kable(seattle_price[1:10, 1:6])
 ```
@@ -544,7 +544,8 @@ The distortion factor is -16.49611.
 ```{r}
 library(tidyverse)
 library(knitr)
-total_reviews <- getBfd(benford(total_data$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+total_reviews <- getBfd(benford(total_data$reviews))  
 #From this table, we can get the distribution of dataset by first two digits.
 kable(total_reviews[1:10, 1:6])
 ```
@@ -578,7 +579,8 @@ The distortion factor is 4.522246.
 ```{r}
 library(tidyverse)
 library(knitr)
-total_prices <- getBfd(benford(total_data$reviews))  #Gets the the statistics of the first Digits of a benford object.
+#Gets the the statistics of the first Digits of a benford object.
+total_prices <- getBfd(benford(total_data$reviews))  
 #From this table, we can get the distribution of dataset by first two digits.
 kable(total_prices[1:10, 1:6])
 ```
@@ -600,14 +602,6 @@ By the EDA of all three cities, we can see that there are a large amount of zero
 For the Benford analysis part, I analyze two variables in each of cities: Review and price.
 
 By looking at the five basic graph, it looks like that they all follow the Benford distribution; however, when we look at the details of the data, we can find something different. The overall trend of the review is in a good shape. The largest deviation always start with the smallest number. On the other hand, the graph of the price looks a bit more away with the Benford distribution. The largest deviations always start with a much larger number suggesting that it does not follow the distribution very well. The results of the total data which combines three cities also support this conclusion. Thus, in this dataset, reviews are good to trust, but we need to think more while looking at the price
-
-
-
-
-
-
-
-
 
 
 
